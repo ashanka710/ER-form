@@ -6,6 +6,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import Email from './Email.svg';
 import Contact from './Contact.svg';
 import Intrested from './Intrested.svg'
+import { FaIconName } from 'react-icons/fa';
 
 import Address from './location.svg'; // Adjust the path based on your file structure
 import StateImage from './State.svg'; // Adjust the path based on your file structure
@@ -15,7 +16,7 @@ import Pincode from './Pincode.svg';
 import CloseIcon from '@mui/icons-material/Close';
 
 import Education from './Education.svg';
-import FormContainer from './FormContainer.css';
+import  './FormContainer.css';
 
 import {
   Grid,
