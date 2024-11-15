@@ -6,7 +6,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import Email from './Email.svg';
 import Contact from './Contact.svg';
 import Intrested from './Intrested.svg'
-
+import axios from 'axios';
 import Address from './location.svg'; // Adjust the path based on your file structure
 import StateImage from './State.svg'; // Adjust the path based on your file structure
 import CityImage from './City.svg'; // Adjust the path based on your file structure
@@ -42,11 +42,12 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const ResponsiveGrid = () => {
-
-  const [states, setStates] = useState([]); // To store fetched states
-  const [cities, setCities] = useState([]); // To store fetched cities
-  const [selectedState, setSelectedState] = useState(""); // For selected state
-  const [selectedCity, setSelectedCity] = useState(""); // For selected city
+// const [state,setState]=useState("");
+// const [city,setCity]=useState("");
+  // const [states, setStates] = useState(''); // To store fetched states
+  // const [cities, setCities] = useState(''); // To store fetched cities
+  // const [selectedState, setSelectedState] = useState(""); // For selected state
+  // const [selectedCity, setSelectedCity] = useState(""); // For selected city
   const [postalCode, setPincode] = useState(""); 
 
 
@@ -74,9 +75,9 @@ const ResponsiveGrid = () => {
    
 
   });// For pincode
-  useEffect(() => {
-    fetchStates();
-  }, []);
+  // useEffect(() => {
+  //   fetchStates();
+  // }, []);
 
 
 
@@ -94,107 +95,94 @@ const ResponsiveGrid = () => {
   
 
   // Function to fetch states directly
-  const fetchStates = async () => {
-    await fetch("https://countriesnow.space/api/v0.1/countries/states", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ iso2: "IN" }), // Assuming the country code is 'IN' for India
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.data.states && data.data.states.length > 0) {
-          setStates(data.data.states); // Store fetched states
-        } else {
-          console.error("No states found");
-        }
-      })
-      .catch((error) => console.error("Error fetching states:", error));
-  };
+  // const fetchStates = async () => {
+  //   await fetch("https://countriesnow.space/api/v0.1/countries/states", {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     body: JSON.stringify({ iso2: "IN" }), // Assuming the country code is 'IN' for India
+  //   })
+  //     .then((response) => response.json())
+  //     .then((data) => {
+  //       if (data.data.states && data.data.states.length > 0) {
+  //         setStates(data.data.states); // Store fetched states
+  //       } else {
+  //         console.error("No states found");
+  //       }
+  //     })
+  //     .catch((error) => console.error("Error fetching states:", error));
+  // };
 
-  // Function to fetch cities for a selected state
-  const fetchCities = async(stateName) => {
-    await fetch("https://countriesnow.space/api/v0.1/countries/state/cities", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ country: "India", state: stateName }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.data && data.data.length > 0) {
-          setCities(data.data); // Store fetched cities
-        } else {
-          setCities([]); // Clear cities if none found
-        }
-      })
-      .catch((error) => console.error("Error fetching cities:", error));
-  };
-  const handleSubmit = (e) => {
-    e.preventDefault(); // Prevent the default form submission
+  // Function to fetch cities for a selected state   https://countriesnow.space/api/v0.1/countries/state/cities
 
- formData.state=selectedState;
- formData.city=selectedCity;
+
+  
+
+
+
+
+
+
  
+const handleSubmit = async (e) => {
+  e.preventDefault(); // Prevent the default form submission
 
- console.log(formData.state);
- 
+  // Update formData with state and city if needed
+  // formData.state = selectedState;
+  // formData.city = selectedCity;
 
-    if (formData.address==='' || formData.Education==='' ||formData.educationStatus==='' || formData.listenedDate===''|| formData.postalCode==='' ) {
-      
-      
-      toast.error('Please fill all details',{
-        position:'top-center'
-      })
+  // console.log("State is", state);
+  // console.log("City is", city);
+  // console.log(formData);
 
-      }else{
-
-    // Create the request options
-    const requestOptions = {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json', // Specify content type
-        },
-        body: JSON.stringify(formData), // Convert formData to JSON string
-    };
-
-
-
-   
-    // Send data to backend 
-    fetch('https://er-form.onrender.com/api/submit', requestOptions)
-        .then((response) => { 
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
+  // Check for empty fields
+  if (formData.address === '' || formData.Education === '' || formData.educationStatus === '' || formData.listenedDate === '' || formData.postalCode === '') {
+    toast.error('Please fill all details', {
+      position: 'top-center'
+    });
+  } else {
+    try {
+      // Send data to backend
+      const response = await axios.post('http://localhost:5000/api/submit', formData)
+      .then((res)=>{
+        if(res.data.messge==='User data saved successfully'){ toast.success('Form Submitted Successfully',{
+              position:'top-center'
+            });}else{
+              toast.error('Something went wrong',{
+                position:'top-center'
+              })
             }
-            return response.json();
-        })
-        .then((data) => {
-            console.log(data); // Handle the response from the server
-            // You can display a success message or perform other actions
-        })
-        .catch((error) => {
-            console.error('There was a problem with the fetch operation:', error);
-        });
-        toast.success("Form Submitted sucessfully",{
-          position:"top-center"
-        })
-
-
-        setFormData({
-          address: '',
-    state: '',
-    city: '',
-    postalCode: '',
-    Education: '',
-    educationStatus: '',
-    listenedDate: '',
           
-        })
+      }).catch((err)=>{
+        console.log(err);
+        
+      })
+     
+      
+       
+     
+        
+ 
 
-      }
+      // Reset form fields
+      setFormData({
+        address: '',
+        // state: '',
+        // city: '',
+        postalCode: '',
+        Education: '',
+        educationStatus: '',
+        listenedDate: '',
+      });
+
+    } catch (error) {
+      console.error('There was a problem with the axios operation:', error);
+      toast.error('There was an error submitting the form', {
+        position: 'top-center'
+      });
+    }
+  }
 };
 
   // Dummy function to fetch pincode for a city
@@ -296,8 +284,8 @@ const isFormFilled =
       gender: '',
       interestedFor:"",
       address: '',
-      state: '',
-      city: '',
+      // state: '',
+      // city: '',
       postalCode: '',
       Education: '',
       educationStatus: '',
@@ -319,14 +307,14 @@ const isFormFilled =
     }
 
     // State validation
-    if (!selectedState) {
-      newErrors.state = 'State is required';
-    }
+    // if (!selectedState) {
+    //   newErrors.state = 'State is required';
+    // }
 
-    // City validation
-    if (!selectedCity) {
-      newErrors.city = 'City is required';
-    }
+    // // City validation
+    // if (!selectedCity) {
+    //   newErrors.city = 'City is required';
+    // }
 
     // Pincode validation (should be exactly 6 digits)
     if (!postalCode) {
@@ -540,86 +528,54 @@ const isFormFilled =
 
               <Grid container spacing={1}>
               <Grid item xs={4}>
-              <TextField
+                    <TextField
   fullWidth
-  margin="normal"
-  select
   label="State"
-  name='state'
-  value={selectedState || ""} // Ensure the placeholder shows when the value is empty
+  name="state"
+  variant="outlined"
+  value={formData.state}
   onChange={(e) => {
-    const stateName = e.target.value;
-    setSelectedState(stateName);
-    setPincode(""); // Reset pincode
-    if (stateName) {
-      fetchCities(stateName);
-    } else {
-      setCities([]); // Clear cities if no state is selected
-    }
+    setFormData({...formData, state:e.target.value});
   }}
-  sx={{
-    "& .MuiOutlinedInput-root": {
-      "& fieldset": {
-        borderColor: "#f6ae22",
-        borderRadius: "30px", // Yellow border color
-      },
-      "&:hover fieldset": {
-        borderColor: "#f6ae22", // Yellow border color on hover
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: "#f6ae22", // Yellow border color when focused
-      },
-    },
-    "& .MuiSelect-icon": {
-      display: "none", // Hide the default dropdown icon
+  required
+  placeholder="Enter your state"
+  InputProps={{
+    startAdornment: (
+      <InputAdornment position="start">
+        <PersonIcon sx={{ color: '#f6ae22' }} />
+      </InputAdornment>
+    ),
+    style: {
+      color: '#eeeeee', // Text color changed to #eeeeee
+      borderRadius: '8px',
     },
   }}
   InputLabelProps={{
     sx: {
-      color: "#f6ae22", // Yellow color for the label
-      "&.Mui-focused": {
-        color: "#f6ae22", // Keep the label yellow when focused
+      color: '#f6ae22',
+      '&.Mui-focused': {
+        color: '#f6ae22',
       },
     },
   }}
-  InputProps={{
-    startAdornment: (
-      <InputAdornment position="start">
-        <img
-          src={StateImage} // Replace with your actual image source
-          alt="State Icon"
-          style={{ width: 19, height: 24 }} // Adjust the size of the image
-        />
-      </InputAdornment>
-    ),
-    endAdornment: (
-      <InputAdornment position="end">
-        <img
-          src={Dropdown} // Replace with your custom dropdown image source
-          alt="Dropdown Icon"
-          style={{ width: 8, height: 10, cursor: "pointer" }} // Adjust the size of the image
-        />
-      </InputAdornment>
-    ),
-    style: {
-      color: "#eeeeee", // Text color changed to #eeeeee
-      borderRadius: "8px",
+  sx={{
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': {
+        borderColor: '#f6ae22',
+        borderRadius: '30px',
+      },
+      '&:hover fieldset': {
+        borderColor: '#f6ae22',
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: '#f6ae22',
+      },
+      '& input': {
+        color: '#eeeeee', // Text color inside the input field
+      },
     },
   }}
-  SelectProps={{
-    displayEmpty: true, // Allow placeholder to show when no value is selected
-  }}
-  
->
-  <MenuItem value="">
-    <em>State</em>
-  </MenuItem>
-  {states.map((state) => (
-    <MenuItem key={state.name} value={state.name}>
-      {state.name}
-    </MenuItem>
-  ))}
-</TextField>
+/>
 
 
 
@@ -630,82 +586,52 @@ const isFormFilled =
 <Grid item xs={4}>
 <TextField
   fullWidth
-  margin="normal"
-  select
   label="City"
   name="city"
-  value={selectedCity || ""} // Use empty string to handle placeholder
-  borderRadius="30px"
+  variant="outlined"
+  value={formData.city}
   onChange={(e) => {
-    const cityName = e.target.value;
-    setSelectedCity(cityName);
-   
+    setFormData({...formData, city:e.target.value});
   }}
-  sx={{
-    "& .MuiOutlinedInput-root": {
-      "& fieldset": {
-        borderColor: "#f6ae22",
-        borderRadius: "30px", // Yellow border color
-      },
-      "&:hover fieldset": {
-        borderColor: "#f6ae22", // Yellow border color on hover
-      },
-      "&.Mui-focused fieldset": {
-        borderColor: "#f6ae22", // Yellow border color when focused
-      },
-      "& input": {
-        color: "#ffffff", // Set input text to white
-      },
-    },
-    "& .MuiSelect-icon": {
-      display: "none", // Hide the default dropdown icon
+  required
+  placeholder="Enter your city"
+  InputProps={{
+    startAdornment: (
+      <InputAdornment position="start">
+        <PersonIcon sx={{ color: '#f6ae22' }} />
+      </InputAdornment>
+    ),
+    style: {
+      color: '#eeeeee', // Text color changed to #eeeeee
+      borderRadius: '8px',
     },
   }}
   InputLabelProps={{
     sx: {
-      color: "#f6ae22", // Yellow color for the label
-      "&.Mui-focused": {
-        color: "#f6ae22", // Keep the label yellow when focused
+      color: '#f6ae22',
+      '&.Mui-focused': {
+        color: '#f6ae22',
       },
     },
   }}
-  InputProps={{
-    startAdornment: (
-      <InputAdornment position="start">
-        <img
-          src={CityImage} // Replace with your actual image source
-          alt="Interest Icon"
-          style={{ width: 24, height: 24 }} // Adjust the size of the image
-        />
-      </InputAdornment>
-    ),
-    endAdornment: (
-      <InputAdornment position="end">
-        <img
-          src={Dropdown} // Replace with your custom dropdown image source
-          alt="Dropdown Icon"
-          style={{ width: 10, height: 10, cursor: "pointer" }} // Adjust the size of the image
-        />
-      </InputAdornment>
-    ),
-    style: {
-      color: "#eeeeee", // Text color changed to #eeeeee
-      borderRadius: "8px",
+  sx={{
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': {
+        borderColor: '#f6ae22',
+        borderRadius: '30px',
+      },
+      '&:hover fieldset': {
+        borderColor: '#f6ae22',
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: '#f6ae22',
+      },
+      '& input': {
+        color: '#eeeeee', // Text color inside the input field
+      },
     },
   }}
-  SelectProps={{
-    displayEmpty: true, // Allow placeholder to be displayed when the value is empty
-  }}
->
-  <MenuItem value="">
-    <em>city</em>
-  </MenuItem>
-  {cities.map((city) => (
-    <MenuItem key={city} value={city}>
-      {city}
-    </MenuItem>
-  ))}
-</TextField>
+/>
 
 
 
